@@ -1,0 +1,801 @@
+
+--//
+print("Loading kiwi's legit cheat...")
+local startTick = tick()
+
+getgenv().targetPlayer = nil
+local UserInputService = game:GetService("UserInputService")
+local MB = UserInputService:GetMouseButtonsPressed()
+local remove = table.remove
+local fromRGB = Color3.fromRGB
+local espColor = fromRGB(139, 26, 176)
+local teamEspColor = fromRGB(61, 176, 26)
+local gunName = nil
+local hooktoggle = false
+local gunName
+local localPlayer = game:GetService("Players").LocalPlayer
+local currentCamera = workspace.CurrentCamera
+local mouse = localPlayer:GetMouse()
+local RunService = game:GetService("RunService")
+local team = {}
+local random = Random.new()
+randomNum = random:NextInteger(1, 100)
+
+local function isInTable(table, value)
+    for i, v in pairs(table) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
+print("bypassing ac...")
+local acTick = tick()
+for i, v in pairs(getconnections(game:GetService("ScriptContext").Error)) do
+    v:Disable()
+end
+local functions = {}
+for k, b in pairs(getgc()) do
+    if type(b) == "function" and getfenv(b).script ~= nil then
+        table.insert(functions, b)
+    end
+end
+for i, v in pairs(getconnections(game:GetService("LogService").MessageOut)) do
+    if isInTable(functions, v.Function) then
+        v:Disable()
+    end
+end
+print("loading gui elements...")
+local guiTick = tick()
+-- // Gui
+local library = loadstring(game:HttpGet("https://pastebin.com/raw/c2Vu80fC"))()
+local Section1 = library:CreateSection("Aim")
+local Section2 = library:CreateSection("Visual")
+local Section3 = library:CreateSection("Player")
+Section1:Toggle(
+    "Silent Aim",
+    function(bool)
+        getgenv().silentAim = bool
+    end
+)
+Section1:Toggle(
+    "Aimlock",
+    function(bool)
+        getgenv().aimlock = bool
+    end
+)
+Section3:Toggle(
+    "Anti-Aim",
+    function(bool)
+        getgenv().antiAim = bool
+    end
+)
+Section3:Toggle(
+    "Melee Aura",
+    function(bool)
+        getgenv().pickaxeAura = bool
+    end
+)
+Section3:Toggle(
+    "Bouncepad/Flintlock TP",
+    function(bool)
+        getgenv().tpExploit = bool
+    end
+)
+Section1:Toggle(
+    "Visibility Check",
+    function(bool)
+        getgenv().visibleCheck = bool
+    end
+)
+Section1:Slider(
+    "Smoothness",
+    {min = 1, max = 25, precise = true},
+    function(slidervalue)
+        getgenv().smoothness = slidervalue
+    end
+)
+Section1:Slider(
+    "Field of View",
+    {min = 0, max = 500, precise = true},
+    function(slidervalue)
+        getgenv().Fov = slidervalue
+    end
+)
+Section1:Slider(
+    "Hit Chance",
+    {min = 0, max = 100, precise = true},
+    function(slidervalue)
+        getgenv().hitChance = slidervalue
+    end
+)
+Section1:Dropdown(
+    "Target part",
+    {"Head", "UpperTorso", "LowerTorso"},
+    function(dropdownvalue)
+        getgenv().targetPart = dropdownvalue
+    end
+)
+Section1:Button(
+    "Set Keybind",
+    function()
+        local function Input(input, gameProcessedEvent)
+            local value = input.KeyCode
+            if value ~= Enum.KeyCode.Unknown then
+                getgenv().aimlockKeybind = value
+                print(getgenv().aimlockKeybind)
+                connection:Disconnect()
+            end
+        end
+
+        connection = UserInputService.InputBegan:Connect(Input)
+    end
+)
+Section2:Toggle(
+    "Box ESP",
+    function(bool)
+        getgenv().boxEsp = bool
+    end
+)
+Section3:Toggle(
+    "Walk Speed Enabled",
+    function(bool)
+        getgenv().walkEnabled = bool
+    end
+)
+Section3:Slider(
+    "Walk Speed",
+    {min = 25, max = 70, precise = false},
+    function(slidervalue)
+        getgenv().walk = slidervalue
+    end
+)
+Section3:Toggle(
+    "Jump Power Enabled",
+    function(bool)
+        getgenv().jumpEnabled = bool
+    end
+)
+Section3:Slider(
+    "Jump Power",
+    {min = 58, max = 100, precise = false},
+    function(slidervalue)
+        getgenv().jump = slidervalue
+    end
+)
+library:Ready()
+print("setting up functions...")
+local funcTick = tick()
+-- // Team List
+coroutine.wrap(
+    function()
+        while true do
+            local teamStorage = game:GetService("ReplicatedStorage"):FindFirstChild("Team_Data")
+            if teamStorage then
+                team = {}
+                for i, teamFolder in pairs(teamStorage:GetChildren()) do
+                    for p, playerValue in pairs(teamFolder:GetChildren()) do
+                        if tostring(playerValue.Name) == tostring(localPlayer.Name) then
+                            for o, teamValue in pairs(teamFolder:GetChildren()) do
+                                table.insert(team, tostring(teamValue.Name))
+                            end
+                        end
+                    end
+                end
+            end
+            wait(3)
+        end
+    end
+)()
+wait(0.1)
+coroutine.wrap(
+    function()
+        while wait(0.5) do
+            if getgenv().pickaxeAura then
+                for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+                    if
+                        v ~= localPlayer  and localPlayer.Character and
+                            localPlayer.Character:FindFirstChildOfClass("Tool") and
+                            localPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("Melee_Handler") and
+                            localPlayer.Character:FindFirstChild("HumanoidRootPart") and
+                            v.Character and
+                            v.Character:FindFirstChild("HumanoidRootPart") and
+                            v.Character:FindFirstChild("Head")
+                     then
+                        if team == nil or #team == 0 or isInTable(team, v.Name) == false then
+                        if
+                            (localPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude <=
+                                16
+                         then
+                            local pos = currentCamera:WorldToScreenPoint(v.Character.Head.Position)
+                            local screenRay = currentCamera:ScreenPointToRay(pos.X, pos.Y, 0.1)
+                            local playerRay = Ray.new(screenRay.Origin, screenRay.Direction * 16)
+
+                            game:GetService("ReplicatedStorage").Remote_Events.Melee_Attack:FireServer(
+                                v,
+                                localPlayer.Character:FindFirstChildOfClass("Tool"),
+                                playerRay
+                            )
+                        end
+                    end
+                    end
+                end
+            end
+        end
+    end
+)()
+local function getClosestPlayerToCursor(x, y)
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+    for i, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if
+            v ~= localPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and
+                v.Character.Humanoid.Health ~= 0 and
+                v.Character:FindFirstChild("HumanoidRootPart") and
+                v.Character:FindFirstChild("Head") and
+                v.Character:FindFirstChild("UpperTorso") and
+                v.Character:FindFirstChild("LowerTorso")
+         then
+            if team == nil or #team == 0 or isInTable(team, v.Name) == false then
+                if getgenv().visibleCheck == false or isInTable(getgenv().visiblePlayers, v.Name) == true then
+                    local pos = currentCamera:WorldToViewportPoint(v.Character[getgenv().targetPart].Position)
+                    local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(x, y)).magnitude
+
+                    if magnitude < shortestDistance and (magnitude < getgenv().Fov or getgenv().Fov == 0) then
+                        closestPlayer = v
+                        shortestDistance = magnitude
+                    end
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+local function createPlayerRay()
+    local closestPlayer =
+        getClosestPlayerToCursor(
+        math.floor(currentCamera.ViewportSize.X / 1.9),
+        math.floor((currentCamera.ViewportSize.Y - 72) / 2) + getgenv().Ydown,
+        0.1
+    )
+    if closestPlayer then
+        getgenv().targetPlayer = closestPlayer
+        local pos = currentCamera:WorldToScreenPoint(closestPlayer.Character[getgenv().targetPart].Position)
+        local screenRay = currentCamera:ScreenPointToRay(pos.X, pos.Y, 0.1)
+        local playerRay = Ray.new(screenRay.Origin, screenRay.Direction * 4000)
+        return playerRay
+    end
+    getgenv().targetPlayer = nil
+    return nil
+end
+
+local tempRay = createPlayerRay()
+
+local toggled = false
+spawn(
+    function()
+        while wait() do
+            if toggled == true then
+                wait(1)
+                local ended = false
+                for i, v in pairs(game.Players:GetPlayers()) do
+                    if v.Name == getgenv().tpPlayer or not getgenv().nameEnabled then
+                    if ended == false then
+                        if v ~= game.Players.LocalPlayer then
+                            if v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") then
+                                if v.Character.Humanoid.Health > 0 then
+                                    if team == nil or #team == 0 or isInTable(team, v.Name) == false then
+                                        local framepos = v.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -7)
+                                        localPlayer.Character.HumanoidRootPart.Anchored = true
+                                        currentCamera.CFrame = v.Character.HumanoidRootPart.CFrame
+                                        game.Players.LocalPlayer.Character:MoveTo(
+                                            Vector3.new(framepos.X, framepos.Y, framepos.Z)
+                                        )
+                                        
+                                        localPlayer.Character.HumanoidRootPart.Anchored = false
+                                        ended = true
+                                    end
+                                end
+                            end
+                        end
+                        end
+                    end
+                end
+                toggled = false
+            end
+        end
+    end
+)
+print("loading esp...")
+local espTick = tick()
+-- // Player Esp
+local chamsTable = {}
+game.Players.PlayerAdded:Connect(
+    function(player)
+        if player ~= localPlayer then
+            player.CharacterAdded:Connect(
+                function(character)
+                    wait()
+                    local wait1 = character:WaitForChild("Head")
+                    local wait2 = character:WaitForChild("HumanoidRootPart")
+                    local wait3 = character:WaitForChild("Humanoid")
+                    for i, v in pairs(character:GetChildren()) do
+                        if v:IsA("Part") or v:IsA("MeshPart") then
+                            if v.Name ~= "HumanoidRootPart" then
+                                --table.insert(chamsTable, player.Name .. "-" .. v.Name)
+
+                                local box = Instance.new("BoxHandleAdornment")
+                                box.Size = v.Size
+                                box.ZIndex = 0
+                                box.AlwaysOnTop = true
+                                box.Transparency = getgenv().EspTransparency
+                                if isInTable(team, player.Name) == false then
+                                    box.Color3 = Color3.fromRGB(139, 26, 176)
+                                else
+                                    box.Color3 = Color3.fromRGB(61, 176, 26)
+                                end
+                                box.Adornee = v
+                                box.Parent = v
+                            end
+                        end
+                    end
+                end
+            )
+        end
+    end
+)
+for i, player in pairs(game.Players:GetPlayers()) do
+    if player ~= localPlayer then
+        player.CharacterAdded:Connect(
+            function(character)
+                wait()
+                local wait1 = character:WaitForChild("Head")
+                local wait2 = character:WaitForChild("HumanoidRootPart")
+                local wait3 = character:WaitForChild("Humanoid")
+                for i, v in pairs(character:GetChildren()) do
+                    if v:IsA("Part") or v:IsA("MeshPart") then
+                        if v.Name ~= "HumanoidRootPart" then
+                            --table.insert(chamsTable, player.Name .. "-" .. v.Name)
+
+                            local box = Instance.new("BoxHandleAdornment")
+                            box.Size = v.Size
+                            box.ZIndex = 0
+                            box.AlwaysOnTop = true
+                            box.Transparency = getgenv().EspTransparency
+                            if isInTable(team, player.Name) == false then
+                                box.Color3 = Color3.fromRGB(139, 26, 176)
+                            else
+                                box.Color3 = Color3.fromRGB(61, 176, 26)
+                            end
+                            box.Adornee = v
+                            box.Parent = v
+                        end
+                    end
+                end
+            end
+        )
+        if player.Character then
+            local character = player.Character
+            local wait1 = character:WaitForChild("Head")
+            local wait2 = character:WaitForChild("HumanoidRootPart")
+            local wait3 = character:WaitForChild("Humanoid")
+            wait()
+            for i, v in pairs(character:GetChildren()) do
+                if v:IsA("Part") or v:IsA("MeshPart") then
+                    if v.Name ~= "HumanoidRootPart" then
+                        --table.insert(chamsTable, player.Name .. "-" .. v.Name)
+
+                        local box = Instance.new("BoxHandleAdornment")
+                        box.Size = v.Size
+                        box.ZIndex = 0
+                        box.AlwaysOnTop = true
+                        box.Transparency = getgenv().EspTransparency
+                        if isInTable(team, player.Name) == false then
+                            box.Color3 = Color3.fromRGB(139, 26, 176)
+                        else
+                            box.Color3 = Color3.fromRGB(61, 176, 26)
+                        end
+                        box.Adornee = v
+                        box.Parent = v
+                    end
+                end
+            end
+        end
+    end
+end
+local OwlESP = loadstring(game:HttpGetAsync("https://pastebin.com/raw/4JuheYmH"))()
+
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local localPlayer = players.LocalPlayer
+local tracking = {}
+
+local teamCheck = false
+
+local function characterRemoving(char)
+    for i, v in next, tracking do
+        if v.char == char then
+            v:remove()
+            remove(tracking, i)
+        end
+    end
+end
+
+local function characterAdded(plr)
+    local char = plr.Character
+    char:WaitForChild("HumanoidRootPart")
+    char:WaitForChild("Head")
+    if isInTable(team, plr.Name) == false then
+        tracking[#tracking + 1] =
+            OwlESP.new(
+            {
+                plr = plr,
+                espBoxVisible = true,
+                tracerVisible = true,
+                text = plr.Name,
+                teamCheck = teamCheck,
+                espColor = espColor
+            }
+        )
+    else
+        tracking[#tracking + 1] =
+            OwlESP.new(
+            {
+                plr = plr,
+                espBoxVisible = true,
+                tracerVisible = true,
+                text = plr.Name,
+                teamCheck = teamCheck,
+                espColor = teamEspColor
+            }
+        )
+    end
+end
+
+for i, v in next, players:GetPlayers() do
+    if v ~= localPlayer then
+        local char = v.Character
+        if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Head") then
+            if isInTable(team, v.Name) == false then
+                tracking[#tracking + 1] =
+                    OwlESP.new(
+                    {
+                        plr = v,
+                        espBoxVisible = true,
+                        tracerVisible = true,
+                        text = v.Name,
+                        teamCheck = teamCheck,
+                        espColor = espColor
+                    }
+                )
+            else
+                tracking[#tracking + 1] =
+                    OwlESP.new(
+                    {
+                        plr = v,
+                        espBoxVisible = true,
+                        tracerVisible = true,
+                        text = v.Name,
+                        teamCheck = teamCheck,
+                        espColor = teamEspColor
+                    }
+                )
+            end
+        end
+        v.CharacterAdded:Connect(
+            function()
+                if getgenv().boxEsp then
+                    characterAdded(v)
+                end
+            end
+        )
+        v.CharacterRemoving:Connect(characterRemoving)
+    end
+end
+
+local function playerAdded(plr)
+    plr.CharacterAdded:Connect(
+        function()
+            if getgenv().boxEsp then
+                characterAdded(plr)
+            end
+        end
+    )
+    plr.CharacterRemoving:Connect(characterRemoving)
+end
+
+players.PlayerAdded:Connect(playerAdded)
+-- //
+print("setting metatable hooks...")
+local hookTick = tick()
+local mt = getrawmetatable(game)
+local oldNamecall = mt.__namecall
+
+if setreadonly then
+    setreadonly(mt, false)
+else
+    make_writeable(mt, true)
+end
+local namecallMethod = getnamecallmethod or get_namecall_method
+local newClose = newcclosure or function(f)
+        return f
+    end
+mt.__namecall =
+    newClose(
+    function(...)
+        local method = namecallMethod()
+        local args = {...}
+        if not checkcaller() and args[1] == game and tostring(method) == "GetService" and args[2] == "LogService" then
+            return {GetLogHistory = function()
+                end}
+        end
+        if tostring(args[1]) == "Fire_Bullet" and tostring(method) == "FireServer" then
+            if tostring(args[5]) == "Blunderblast" or tostring(args[5]) == "Flintlock" then
+                if getgenv().tpExploit then
+                    if toggled == false then 
+                        toggled = true
+                    end
+                end
+            end
+        end
+        if tostring(args[1]) == "Request_Bounce" and method == "InvokeServer" then
+            if getgenv().tpExploit then    
+                if toggled == false then
+                    toggled = true
+                end
+            end
+        end
+        if not checkcaller() and tostring(method) == "FindPartOnRayWithIgnoreList" then
+            if hooktoggle == true then
+                if getgenv().silentAim == true then
+                    local scrip = getcallingscript()
+                    if scrip == game.Players.LocalPlayer.Character[gunName].Setup.RC then
+                        if tempRay then
+                            if randomNum <= getgenv().hitChance then
+                                args[2] = tempRay
+                                return oldNamecall(unpack(args))
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        return oldNamecall(...)
+    end
+)
+if setreadonly then
+    setreadonly(mt, true)
+else
+    make_writeable(mt, false)
+end
+local gmt = getrawmetatable(game)
+
+if setreadonly then
+    setreadonly(gmt, false)
+else
+    make_writeable(gmt, true)
+end
+local gindex = gmt.__index
+
+gmt.__index = function(tbl, idx)
+    if tostring(tbl) == "Humanoid" and tostring(idx) == "JumpPower" then
+        return 58
+    end
+    if tostring(tbl) == "Humanoid" and tostring(idx) == "WalkSpeed" then
+        return 25
+    end
+    return gindex(tbl, idx)
+end
+if setreadonly then
+    setreadonly(gmt, true)
+else
+    make_writeable(gmt, false)
+end
+local OldFunction
+local Hook = function(self, ...)
+    if self == game:GetService("ReplicatedStorage")["Remote_Events"]["Update_Joints"] then
+        if getgenv().antiAim then
+            local args = {...}
+            args[1] = getgenv().C1
+            args[2] = getgenv().C2
+            return OldFunction(self, unpack(args))
+        end
+    end
+    return OldFunction(self, ...)
+end
+OldFunction = hookfunc(Instance.new("RemoteEvent").FireServer, Hook)
+-- //
+print("loading misc drawing, keybinds, etc...")
+local misc = tick()
+-- // Drawing
+local circle = Drawing.new("Circle")
+circle.Visible = true
+circle.Transparency = 1
+circle.Color = Color3.fromRGB(74, 212, 32)
+circle.Thickness = 1
+circle.Radius = 100
+circle.Filled = false
+circle.NumSides = 100
+local shiftKeyL = Enum.KeyCode.LeftAlt
+local shiftKeyR = Enum.KeyCode.RightAlt
+local function Input(input, gameProcessedEvent)
+    local value = input.KeyCode
+    --print(MB.MouseButton2)
+end
+
+UserInputService.InputBegan:Connect(Input)
+
+local function IsKeyDown()
+    local buttons = UserInputService:GetMouseButtonsPressed()
+    for _, button in pairs(buttons) do
+        if tostring(getgenv().aimlockKeybind) == "MouseButton1" then
+            if (button.UserInputType.Name == "MouseButton1") then
+                return true
+            else
+                return false
+            end
+        end
+        if tostring(getgenv().aimlockKeybind) == "MouseButton2" then
+            if (button.UserInputType.Name == "MouseButton2") then
+                return true
+            else
+                return false
+            end
+        end
+
+        if tostring(getgenv().aimlockKeybind) == "MouseButton3" then
+            if (button.UserInputType.Name == "MouseButton3") then
+                return true
+            else
+                return false
+            end
+        end
+    end
+    local aimlockKeybind = tostring(getgenv().aimlockKeybind)
+    if aimlockKeybind == "MouseButton1" or aimlockKeybind == "MouseButton2" or aimlockKeybind == "MouseButton3" then
+        return false
+    else
+        return UserInputService:IsKeyDown(getgenv().aimlockKeybind)
+    end
+end
+
+local alternate = 0
+runService.RenderStepped:Connect(
+    function()
+        if localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
+            if getgenv().walkEnabled then
+            localPlayer.Character.Humanoid.WalkSpeed = getgenv().walk
+            end
+            if getgenv().jumpEnabled then
+                localPlayer.Character.Humanoid.JumpPower = getgenv().jump
+            end
+        end
+        
+        for i, v in next, tracking do
+            v:update()
+        end
+        alternate = alternate + 1
+        if alternate >= 2 then
+            alternate = 0
+            for i, player in pairs(game:GetService("Players"):GetPlayers()) do
+                if player ~= localPlayer and player.Character then
+                    local visChar = player.Character
+                    local targetVis = getgenv().targetPart
+                    if
+                        visChar:FindFirstChild(targetVis) and
+                            visChar:FindFirstChild(targetVis):FindFirstChildOfClass("BoxHandleAdornment")
+                     then
+                        local pos = currentCamera:WorldToScreenPoint(visChar[targetVis].Position)
+                        local screenRay = currentCamera:ScreenPointToRay(pos.X, pos.Y, 0.1)
+                        local playerRay = Ray.new(screenRay.Origin, screenRay.Direction * 10000)
+                        local hitPart = workspace:FindPartOnRay(playerRay)
+                        if hitPart and hitPart:IsDescendantOf(visChar) then
+                            if isInTable(getgenv().visiblePlayers, player.Name) == false then
+                                table.insert(getgenv().visiblePlayers, player.Name)
+                            end
+                            for i, v in pairs(visChar:GetChildren()) do
+                                if v:IsA("Part") or v:IsA("MeshPart") then
+                                    if v.Name ~= "HumanoidRootPart" and v:FindFirstChildOfClass("BoxHandleAdornment") then
+                                        v:FindFirstChildOfClass("BoxHandleAdornment").Transparency = 0.8
+                                    end
+                                end
+                            end
+                        else
+                            if isInTable(getgenv().visiblePlayers, player.Name) == true then
+                                local finder = table.find(getgenv().visiblePlayers, player.Name)
+                                if finder then
+                                    table.remove(getgenv().visiblePlayers, finder)
+                                end
+                            end
+                            for i, v in pairs(visChar:GetChildren()) do
+                                if v:IsA("Part") or v:IsA("MeshPart") then
+                                    if v.Name ~= "HumanoidRootPart" and v:FindFirstChildOfClass("BoxHandleAdornment") then
+                                        v:FindFirstChildOfClass("BoxHandleAdornment").Transparency =
+                                            tonumber(getgenv().EspTransparency)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        randomNum = random:NextInteger(1, 100)
+        circle.Radius = getgenv().Fov
+        circle.Position =
+            Vector2.new(
+            math.floor(currentCamera.ViewportSize.X / 1.9),
+            math.floor((currentCamera.ViewportSize.Y - 72) / 2) + getgenv().Ydown
+        )
+        if getgenv().aimlock == true then
+            if IsKeyDown() == true then
+                local closePlayer =
+                    getClosestPlayerToCursor(
+                    math.floor(currentCamera.ViewportSize.X / 1.9),
+                    math.floor((currentCamera.ViewportSize.Y - 72) / 2) + getgenv().Ydown
+                )
+                if closePlayer then
+                    getgenv().targetPlayerAimlock = closePlayer
+                    local mouseMoveValue =
+                        Vector2.new(
+                        math.floor(currentCamera.ViewportSize.X / 1.9),
+                        math.floor((currentCamera.ViewportSize.Y - 72) / 2) + getgenv().Ydown
+                    ) -
+                        Vector2.new(
+                            currentCamera:WorldToViewportPoint(closePlayer.Character[getgenv().targetPart].Position).X,
+                            currentCamera:WorldToViewportPoint(closePlayer.Character[getgenv().targetPart].Position).Y
+                        )
+                    mousemoverel(
+                        (mouseMoveValue.X / getgenv().smoothness) * -1,
+                        (mouseMoveValue.Y / getgenv().smoothness) * -1
+                    )
+                else
+                    getgenv().targetPlayerAimlock = nil
+                end
+            else
+                getgenv().targetPlayerAimlock = nil
+            end
+        else
+            getgenv().targetPlayerAimlock = nil
+        end
+        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") then
+            if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("Setup") then
+                gunName = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool").Name
+                circle.Visible = true
+                if getgenv().silentAim == true then
+                    tempRay = createPlayerRay()
+                    _G.N0Reload = true
+                    hooktoggle = true
+                else
+                    getgenv().targetPlayer = nil
+                    hooktoggle = false
+                end
+            else
+                getgenv().targetPlayer = nil
+                circle.Visible = false
+                hooktoggle = false
+            end
+        else
+            getgenv().targetPlayer = nil
+            circle.Visible = false
+            hooktoggle = false
+        end
+        for p, o in pairs(game.Players:GetPlayers()) do
+            if o.Character then
+                if o.Character:FindFirstChild("Humanoid") and o.Character:FindFirstChild("Humanoid").Health <= 0 then
+                    for i, v in next, tracking do
+                        if v.char == o.Character then
+                            v:remove()
+                            remove(tracking, i)
+                        end
+                    end
+                end
+            end
+        end
+    end
+)
+print("Finished in " .. tick() - startTick)
