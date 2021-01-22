@@ -324,7 +324,7 @@ for i, player in pairs(game.Players:GetPlayers()) do
                 for i, v in pairs(character:GetChildren()) do
                     if v:IsA("Part") or v:IsA("MeshPart") then
                         if v.Name ~= "HumanoidRootPart" then
-                            --table.insert(chamsTable, player.Name .. "-" .. v.Name)
+                           
 
                             local box = Instance.new("BoxHandleAdornment")
                             box.Size = v.Size
@@ -352,7 +352,7 @@ for i, player in pairs(game.Players:GetPlayers()) do
             for i, v in pairs(character:GetChildren()) do
                 if v:IsA("Part") or v:IsA("MeshPart") then
                     if v.Name ~= "HumanoidRootPart" then
-                        --table.insert(chamsTable, player.Name .. "-" .. v.Name)
+                        
 
                         local box = Instance.new("BoxHandleAdornment")
                         box.Size = v.Size
