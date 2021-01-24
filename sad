@@ -514,7 +514,7 @@ local Hook = function(self, ...)
     end
     return OldFunction(self, ...)
 end
-OldFunction = hookfunc(Instance.new("RemoteEvent").FireServer, Hook)
+OldFunction = hookfunction(Instance.new("RemoteEvent").FireServer, Hook)
 -- //
 print("loading misc drawing, keybinds, etc...")
 local misc = tick()
